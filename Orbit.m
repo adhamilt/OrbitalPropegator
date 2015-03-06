@@ -1,7 +1,9 @@
 function [t,q]=Orbit(dur,tol,Plot,param)
 
+
 addpath('Propegator')
 addpath('Tools')
+
 
 Re=6378.137; %Earth equatorial radius in kilometers
 m=398600.44189; %standard gravitational parameter of Earth
@@ -11,7 +13,7 @@ ImportAtm();
 if nargin<=3
 %Orbital Parameters:
 %-------------------------------
-Inclination=79; %inclination
+Inclination=98; %inclination
 Semimajor=300+Re; %semimajor axis
 RAAN=0; %Right ascension of the acending node
 ArgPer=0; %Argument of Perigee
@@ -32,7 +34,7 @@ Plot=1;%make plots by default
 end
 
 if nargin<=1
-    tol=1E-5; %default tolerance
+    tol=1E-6; %default tolerance
 end
 options = odeset('RelTol', tol); %set the integrator tolerance
 
@@ -77,25 +79,28 @@ velocity=PerifocalToECI*[-sqrt(m/p)*sin(TrueAnom); sqrt(m/p)*(eccentricity+cos(T
 
 %define an initial basis for the Orbital frame
 rhat=-radius./norm(radius);
-vhat=velocity./norm(velocity);
-starhat=sqrt([1; 1; 1;]-(rhat.^2)-(vhat.^2));
+starhat=cross(velocity,radius)./norm(cross(velocity,radius));
+vhat=cross(starhat,rhat);
 
 %Initial Rotation Matrix from ECI to Orbital frame
-ECIToOrbital=[rhat vhat starhat];
+OrbitalToECI=[vhat starhat rhat];
+ECIToOrbital=OrbitalToECI';
 
 %quaternion initial conditions:
-q4=0.5*sqrt(1+ECIToOrbital(1,1)+ECIToOrbital(2,2)+ECIToOrbital(3,3));
-q1=(1/(4*q4))*(ECIToOrbital(2,3)-ECIToOrbital(3,2));
-q2=(1/(4*q4))*(ECIToOrbital(3,1)-ECIToOrbital(1,3));
-q3=(1/(4*q4))*(ECIToOrbital(1,2)-ECIToOrbital(2,1));
+q4=0.5*sqrt(1+OrbitalToECI(1,1)+OrbitalToECI(2,2)+OrbitalToECI(3,3));
+q1=(1/(4*q4))*(OrbitalToECI(2,3)-OrbitalToECI(3,2));
+q2=(1/(4*q4))*(OrbitalToECI(3,1)-OrbitalToECI(1,3));
+q3=(1/(4*q4))*(OrbitalToECI(1,2)-OrbitalToECI(2,1));
 
 
-initYaw=0.0;
-initPit=0.001;
+initYaw=0;
+initPit=0;
 initRoll=0;
 
+omega=ECIToOrbital*[initYaw; initPit; initRoll];
 
-[t,q] = ode23tb(@WGS84,dur,[radius(1) velocity(1) radius(2) velocity(2) radius(3) velocity(3) initYaw initPit initRoll q1 q2 q3 q4],options);
+
+[t,q] = ode23tb(@WGS84,dur,[radius(1) velocity(1) radius(2) velocity(2) radius(3) velocity(3) omega(1) omega(2) omega(3) q1 q2 q3 q4],options);
 
 
 if Plot==1
@@ -105,6 +110,17 @@ if Plot==1
     deltar=sqrt((q(:,1).^2)+(q(:,3).^2)+(q(:,5).^2));
     plot(t,deltar-Re);
     title('Orbital Altitude')
+    xlabel('Time Elapsed in Seconds')
+    ylabel('Altitude in km')
+    
+    figure;
+    for i=1:length(q)
+        error(i)=sqrt(q(i,10)^2 +q(i,11)^2 +q(i,12)^2 +q(i,13)^2);
+    end
+    plot(t,error-1)
+    title('Quaternion Norm')
+    xlabel('Time Elapsed in Seconds')
+    ylabel('Norm')
 end
 end
 

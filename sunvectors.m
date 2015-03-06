@@ -1,30 +1,27 @@
-function [sun]=sunvectors(date,dur,tol,Plot,param)
+function [sun dat]=sunvectors(date,dur,tol,Plot,param)
 
-    seconds=86400; %seconds in a day
+    sec=86400; %seconds in a day
+    
+    addpath('Sun Vector')
 
+    Re=6378.137; %Earth equatorial radius in kilometers
+    m=398600.44189; %standard gravitational parameter of Earth
 
-
+    
     if nargin<=4
         %Orbital Parameters:
         %-------------------------------
-        Inclination=79; %inclination
-        Semimajor=300+Re; %semimajor axis
-        RAAN=0; %Right ascension of the acending node
-        ArgPer=0; %Argument of Perigee
-        TrueAnom=0; %True anomaly
-        eccentricity=0;%eccentricity
+        param(1)=79; %inclination
+        param(2)=300+Re; %semimajor axis
+        param(3)=0; %Right ascension of the acending node
+        param(4)=0; %Argument of Perigee
+        param(5)=0; %True anomaly
+        param(6)=0;%eccentricity
         %-------------------------------
-    else
-        Inclination=param(1); %inclination
-        Semimajor=param(2); %semimajor axis
-        RAAN=param(3); %Right ascension of the acending node
-        ArgPer=param(4); %Argument of Perigee
-        TrueAnom=param(5); %True anomaly
-        eccentricity=param(6);%eccentricity
     end
 
     if nargin<=3
-    Plot=1;%make plots by default
+    Plot=0;%do not make plots by default
     end
 
     if nargin<=2
@@ -43,5 +40,49 @@ function [sun]=sunvectors(date,dur,tol,Plot,param)
     if strncmp(class(date),'char',4)
         date=datenum(date);
     end
+    
+    
+    [t,q]=Orbit(dur,tol,Plot,param);
+    
+    dat=(t/sec)+date;
+    sun=[];
+    
+    
+    for i=1:length(dat)
+        s=ECIsun(dat(i));
+        
+        Q=q(i,10:13);
 
+        radius=[q(i,1) q(i,3) q(i,5)]';
+        velocity=[q(i,2) q(i,4) q(i,6)]';
+        
+    %define an initial basis for the Orbital frame
+    rhat=-radius./norm(radius);
+    starhat=cross(velocity,radius)./norm(cross(velocity,radius));
+    vhat=cross(starhat,rhat);
+
+    %Initial Rotation Matrix from ECI to Orbital frame
+    OrbitalToECI=[vhat starhat rhat];
+    ECIToOrbital=OrbitalToECI';
+
+        
+        BodyToOrbital=[1-(2*Q(2)^2)+(2*Q(3)^2) 2*(Q(1)*Q(2)+Q(3)*Q(4)) 2*(Q(1)*Q(3)-Q(2)*Q(4)); 
+                       2*(Q(1)*Q(2)-Q(3)*Q(4)) 1-(2*Q(1)^2)+(2*Q(3)^2) 2*(Q(2)*Q(3)+Q(1)*Q(4));
+                       2*(Q(1)*Q(3)+Q(2)*Q(4)) 2*(Q(2)*Q(3)-Q(1)*Q(4)) 1-(2*Q(1)^2)+(2*Q(2)^2)];
+      
+
+        
+        OrbitalToBody=BodyToOrbital';
+
+        abs(norm(OrbitalToBody*ECIToOrbital*s)-1)
+        if(abs(norm(OrbitalToBody*ECIToOrbital*s)-1)>0.1)
+            warning('Sun Vector is out of Tolerance')
+        end
+        
+        sun=[sun; (OrbitalToBody*ECIToOrbital*s)'];
+    end
+    
+    
+    
+    
 end
