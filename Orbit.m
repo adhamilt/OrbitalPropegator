@@ -1,5 +1,7 @@
 function [t,q]=Orbit(dur,tol,Plot,param)
 
+addpath('Propegator')
+addpath('Tools')
 
 Re=6378.137; %Earth equatorial radius in kilometers
 m=398600.44189; %standard gravitational parameter of Earth
