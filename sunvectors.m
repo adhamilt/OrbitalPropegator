@@ -56,28 +56,23 @@ function [sun dat]=sunvectors(date,dur,tol,Plot,param)
         radius=[q(i,1) q(i,3) q(i,5)]';
         velocity=[q(i,2) q(i,4) q(i,6)]';
         
-    %define an initial basis for the Orbital frame
-    rhat=-radius./norm(radius);
-    starhat=cross(velocity,radius)./norm(cross(velocity,radius));
-    vhat=cross(starhat,rhat);
-
-    %Initial Rotation Matrix from ECI to Orbital frame
-    OrbitalToECI=[vhat starhat rhat];
-    ECIToOrbital=OrbitalToECI';
+        %define an initial basis for the Orbital frame
+        rhat=-radius./norm(radius);
+        starhat=cross(velocity,radius)./norm(cross(velocity,radius));
+        vhat=cross(starhat,rhat);
+        
+        %Initial Rotation Matrix from ECI to Orbital frame
+        OrbitalToECI=[rhat vhat starhat];
+        ECIToOrbital=OrbitalToECI';
 
         
-        BodyToOrbital=[1-(2*Q(2)^2)+(2*Q(3)^2) 2*(Q(1)*Q(2)+Q(3)*Q(4)) 2*(Q(1)*Q(3)-Q(2)*Q(4)); 
-                       2*(Q(1)*Q(2)-Q(3)*Q(4)) 1-(2*Q(1)^2)+(2*Q(3)^2) 2*(Q(2)*Q(3)+Q(1)*Q(4));
-                       2*(Q(1)*Q(3)+Q(2)*Q(4)) 2*(Q(2)*Q(3)-Q(1)*Q(4)) 1-(2*Q(1)^2)+(2*Q(2)^2)];
+        BodyToOrbital=[1-2*((Q(2)^2)+(Q(3)^2)) 2*(Q(1)*Q(2)+Q(3)*Q(4)) 2*(Q(1)*Q(3)-Q(2)*Q(4)); 
+                       2*(Q(1)*Q(2)-Q(3)*Q(4)) 1-2*((Q(1)^2)+(Q(3)^2)) 2*(Q(2)*Q(3)+Q(1)*Q(4));
+                       2*(Q(1)*Q(3)+Q(2)*Q(4)) 2*(Q(2)*Q(3)-Q(1)*Q(4)) 1-2*((Q(1)^2)+(Q(2)^2))];
       
-
         
         OrbitalToBody=BodyToOrbital';
-
-        abs(norm(OrbitalToBody*ECIToOrbital*s)-1)
-        if(abs(norm(OrbitalToBody*ECIToOrbital*s)-1)>0.1)
-            warning('Sun Vector is out of Tolerance')
-        end
+        
         
         sun=[sun; (OrbitalToBody*ECIToOrbital*s)'];
     end

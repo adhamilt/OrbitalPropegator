@@ -49,23 +49,35 @@ function [sun dat]=sunvectors(date,dur,tol,Plot,param)
     
     
     for i=1:length(dat)
-        sun=[sun; ECIsun(dat(i))'];
+        s=ECIsun(dat(i));
         
         Q=q(i,10:13);
-        radius=[q(i,1) q(i,3) q(i,5)];
-        velocity=[q(i,2) q(i,4) q(i,6)];
+
+        radius=[q(i,1) q(i,3) q(i,5)]';
+        velocity=[q(i,2) q(i,4) q(i,6)]';
         
         %define an initial basis for the Orbital frame
         rhat=-radius./norm(radius);
-        vhat=velocity./norm(velocity);
-        starhat=sqrt([1; 1; 1;]-(rhat.^2)-(vhat.^2));
-
-        %Initial Rotation Matrix from ECI to Orbital frame
-        ECIToOrbital=[rhat vhat starhat];
+        starhat=cross(velocity,radius)./norm(cross(velocity,radius));
+        vhat=cross(starhat,rhat);
         
-        BodyToOrbital=[1-(2*Q(2)^2)-(2*Q(3)^2) 2*(Q(1)*Q(2)-Q(3)*Q(4)) 2*(Q(1)*Q(3)-Q(2)*Q(4)); 
-                       2*(Q(1)*Q(2)-Q(3)*Q(4)) 1-(2*Q(1)^2)-(2*Q(3)^2) 2*(Q(2)*Q(3)-Q(1)*Q(4));
-                       2*(Q(1)*Q(2)-Q(3)*Q(4)) 2*(Q(1)*Q(2)-Q(3)*Q(4))]
+        %Initial Rotation Matrix from ECI to Orbital frame
+        OrbitalToECI=[rhat vhat starhat];
+        ECIToOrbital=OrbitalToECI';
+
+        
+        BodyToOrbital=[1-2*(Q(2)^2)+(2*Q(3)^2) 2*(Q(1)*Q(2)+Q(3)*Q(4)) 2*(Q(1)*Q(3)-Q(2)*Q(4)); 
+                       2*(Q(1)*Q(2)-Q(3)*Q(4)) 1-(2*Q(1)^2)+(2*Q(3)^2) 2*(Q(2)*Q(3)+Q(1)*Q(4));
+                       2*(Q(1)*Q(3)+Q(2)*Q(4)) 2*(Q(2)*Q(3)-Q(1)*Q(4)) 1-(2*Q(1)^2)+(2*Q(2)^2)];
+      
+        
+        OrbitalToBody=BodyToOrbital';
+      
+        abs(ctranspose(OrbitalToBody)-inv(OrbitalToBody))<0.1
+        abs(ctranspose(ECIToOrbital)-inv(ECIToOrbital))<tol
+        
+        
+        sun=[sun; (OrbitalToBody*ECIToOrbital*s)'];
     end
     
     
