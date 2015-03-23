@@ -1,5 +1,15 @@
 function s=ECIsun(d)
 
+%produces the sun vector in the earth centered coordinates. (This will be the vector as seen from the center of the Earth)
+
+%s - the sun vector as [x y z] in ECI (unit vector)
+%d - the date. This can be inputed as a string or as a matlab date number.
+%       note the time MUST be in UTC
+
+%EXAMPLE:
+%
+% s=ECIsun('April 1 2015 10:30')
+
     if nargin==0
         d=date;
     end
@@ -14,7 +24,7 @@ function s=ECIsun(d)
     sec=86400; %seconds in a day
     
     
-    s=[1; 0; 0]; %sun basis vector in the SCI.
+    s=[0; 1; 0]; %sun basis vector in the SCI.
     tilt=23.4*pi/180; %the tilt of the earth from the ecliptic
     
     t=(d-solst)*sec; %number of seconds since the last apsis
