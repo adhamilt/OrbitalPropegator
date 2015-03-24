@@ -1,4 +1,4 @@
-function s=ECIsun(d)
+function [sx sy sz]=ECIsun(d)
 
 %produces the sun vector in the earth centered coordinates. (This will be the vector as seen from the center of the Earth)
 
@@ -24,15 +24,19 @@ function s=ECIsun(d)
     sec=86400; %seconds in a day
     
     
-    s=[0; 1; 0]; %sun basis vector in the SCI.
+    sx=[1; 0; 0]; %sun basis x vector in the SCI. (points to the sun)
+    sy=[0; 1; 0]; 
+    sz=[0; 0; 1];
+    
     tilt=23.4*pi/180; %the tilt of the earth from the ecliptic
     
     t=(d-solst)*sec; %number of seconds since the last apsis
     T=365.25636*sec/(2*pi); %Earth's Orbital Period
     
     
-    s=[cos(tilt) 0 sin(tilt); 0 1 0; -sin(tilt) 0 cos(tilt)]*[cos(t/T) -sin(t/T) 0; sin(t/T) cos(t/T) 0; 0 0 1]*s;
-
+    sz=[cos(tilt) 0 sin(tilt); 0 1 0; -sin(tilt) 0 cos(tilt)]*[cos(t/T) -sin(t/T) 0; sin(t/T) cos(t/T) 0; 0 0 1]*sz;
+    sx=[cos(tilt) 0 sin(tilt); 0 1 0; -sin(tilt) 0 cos(tilt)]*[cos(t/T) -sin(t/T) 0; sin(t/T) cos(t/T) 0; 0 0 1]*sx;
+    sy=[cos(tilt) 0 sin(tilt); 0 1 0; -sin(tilt) 0 cos(tilt)]*[cos(t/T) -sin(t/T) 0; sin(t/T) cos(t/T) 0; 0 0 1]*sy;
 
 end
 
