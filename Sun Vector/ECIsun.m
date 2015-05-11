@@ -25,18 +25,18 @@ function [sx sy sz]=ECIsun(d)
     
     
     sx=[1; 0; 0]; %sun basis x vector in the SCI. (points to the sun)
-    sy=[0; 1; 0]; 
+    sy=[0; -1; 0]; 
     sz=[0; 0; 1];
     
-    tilt=23.4*pi/180; %the tilt of the earth from the ecliptic
+    tilt=-23.4*pi/180; %the tilt of the earth from the ecliptic
     
     t=(d-solst)*sec; %number of seconds since the last apsis
     T=365.25636*sec/(2*pi); %Earth's Orbital Period
     
     
-    sz=[cos(tilt) 0 sin(tilt); 0 1 0; -sin(tilt) 0 cos(tilt)]*[cos(t/T) -sin(t/T) 0; sin(t/T) cos(t/T) 0; 0 0 1]*sz;
-    sx=[cos(tilt) 0 sin(tilt); 0 1 0; -sin(tilt) 0 cos(tilt)]*[cos(t/T) -sin(t/T) 0; sin(t/T) cos(t/T) 0; 0 0 1]*sx;
-    sy=[cos(tilt) 0 sin(tilt); 0 1 0; -sin(tilt) 0 cos(tilt)]*[cos(t/T) -sin(t/T) 0; sin(t/T) cos(t/T) 0; 0 0 1]*sy;
+    sz=[1 0 0; 0 cos(tilt) sin(tilt); 0 -sin(tilt) cos(tilt)]*[cos(t/T) -sin(t/T) 0; sin(t/T) cos(t/T) 0; 0 0 1]*sz;
+    sx=[1 0 0; 0 cos(tilt) sin(tilt); 0 -sin(tilt) cos(tilt)]*[cos(t/T) -sin(t/T) 0; sin(t/T) cos(t/T) 0; 0 0 1]*sy;
+    sy=[1 0 0; 0 cos(tilt) sin(tilt); 0 -sin(tilt) cos(tilt)]*[cos(t/T) -sin(t/T) 0; sin(t/T) cos(t/T) 0; 0 0 1]*sx;
 
 end
 

@@ -48,7 +48,12 @@ for i=2:length(x)
         ey=y(i);
         ez=z(i);
     end
-    
+end
+
+if Ec==1;
+    plot3(ex,ey,ez,'b')
+else
+    plot3(ex,ey,ez,'r')
 end
 
 axis equal
