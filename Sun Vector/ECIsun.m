@@ -1,4 +1,4 @@
-function [sx sy sz]=ECIsun(d)
+function s=ECIsun(d)
 
 %produces the sun vector in the earth centered coordinates. (This will be the vector as seen from the center of the Earth)
 
@@ -19,25 +19,23 @@ function [sx sy sz]=ECIsun(d)
     end
     
     apsis=datenum('January 4 2015 06:36'); % time of the 2015 Perihelion
-    solst=datenum('December 22 2015 04:48'); %time of the 2015 winter solstice
+    solst=datenum('December 22 2015 04:48'); %time of the 2015 Winter Solstice
+    equnx=datenum('March 20 2015 22:45'); %time of the 2015 Spring Equinox
     
     sec=86400; %seconds in a day
     
     
-    sx=[1; 0; 0]; %sun basis x vector in the SCI. (points to the sun)
-    sy=[0; -1; 0]; 
-    sz=[0; 0; 1];
+    sx=[-1; 0; 0]; %sun basis x vector in the SCI. (points to the sun)
     
     tilt=-23.4*pi/180; %the tilt of the earth from the ecliptic
     
-    t=(d-solst)*sec; %number of seconds since the last apsis
+    t=(d-equnx)*sec; %number of seconds since the last equinox
     T=365.25636*sec/(2*pi); %Earth's Orbital Period
+    o=t/T;
+    
+    s=[1 0 0; 0 cos(tilt) -sin(tilt); 0 sin(tilt) cos(tilt)]*[cos(o) -sin(o) 0; sin(o) cos(o) 0; 0 0 1]*sx;
     
     
-    sz=[1 0 0; 0 cos(tilt) sin(tilt); 0 -sin(tilt) cos(tilt)]*[cos(t/T) -sin(t/T) 0; sin(t/T) cos(t/T) 0; 0 0 1]*sz;
-    sx=[1 0 0; 0 cos(tilt) sin(tilt); 0 -sin(tilt) cos(tilt)]*[cos(t/T) -sin(t/T) 0; sin(t/T) cos(t/T) 0; 0 0 1]*sy;
-    sy=[1 0 0; 0 cos(tilt) sin(tilt); 0 -sin(tilt) cos(tilt)]*[cos(t/T) -sin(t/T) 0; sin(t/T) cos(t/T) 0; 0 0 1]*sx;
-
 end
 
 

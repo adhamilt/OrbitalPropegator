@@ -11,8 +11,7 @@ Re=6378.137; %Earth equatorial radius in kilometers
 Ecl=zeros(length(dat),1);
 
 for i=1:length(dat)
-   [sx sy sz]=ECIsun(dat(i));
-   S=sx';
+   S=ECIsun(dat(i))';
    Q=[q(i,1) q(i,3) q(i,5)];
    C=(dot(Q,S)/(norm(S)^2));
    A=Q-C*S;
@@ -30,6 +29,6 @@ for i=1:length(dat)
     end
 end
 
-EclipsePlot(Ecl,q(:,1)/Re,q(:,3)/Re,q(:,5)/Re,dat*sec);
+EclipsePlot(Ecl,q,dat*sec);
 
 end

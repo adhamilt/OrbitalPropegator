@@ -103,8 +103,9 @@ omega=ECIToOrbital*[initYaw; initPit; initRoll];
 [t,q] = ode23tb(@WGS84,dur,[radius(1) velocity(1) radius(2) velocity(2) radius(3) velocity(3) omega(1) omega(2) omega(3) q1 q2 q3 q4],options);
 
 
+
 if Plot==1
-    OrbitalPlot(q(:,1)/Re,q(:,3)/Re,q(:,5)/Re,t);
+    OrbitalPlot(q,t);
 
     figure;
     deltar=sqrt((q(:,1).^2)+(q(:,3).^2)+(q(:,5).^2));

@@ -33,7 +33,7 @@ function [sun dat q]=sunvectors(date,dur,tol,Plot,param)
     end
 
     if nargin<=0
-        date='April-1-2016';
+        date='April-1-2016 12:00';
     end
 
 
